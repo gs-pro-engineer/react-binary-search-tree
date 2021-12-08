@@ -1,41 +1,77 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
+let i = -100;
 
-export default function TreeNode(props) {
-  const [node, setNode] = useState(props.node);
+export default function TreeNode() {
 
-  useEffect(() => {
-    setNode(props.node);
-    return () => { };
-  }, [props.node]);
+  const [node, setNode] = useState({ id: 0, children: null });
 
-  const onSplit = () => {
-    setNode(node.split());
-  };
+  document.body.onkeyup = function (e) {
+    if (e.keyCode === 32) {
+      let tnode = generateBinaryTree(node);
+      setNode({ id: 0, children: tnode });
+    }
+  }
 
-  console.log("node:", node);
+  const generateBinaryTree = (_oNode) => {
+    if (!_oNode.children) {
+      i = i + 2;
+      return [
+        {
+          id: i - 2,
+          children: null,
+        },
+        {
+          id: i - 1,
+          children: null,
+        }
+      ]
+    }
+
+    _oNode.children.map(_eNode => {
+      if (i > 99) return _eNode;
+      _eNode.children = generateBinaryTree(_eNode);
+      return _eNode;
+    });
+
+    return _oNode.children;
+  }
+
+  const _rNode = (id) => {
+  }
+
+  const renderTree = (children) => {
+    return (
+      <ul>
+        {
+          children.map((child, index) => {
+            return (
+              <li key={index} onClick={(e) => { _rNode(child.id) }}><h4>{child.id}</h4>
+                {
+                  child.children ?
+                    renderTree(child.children)
+                    : (
+                      null
+                    )}
+              </li>
+            )
+          })
+        }
+      </ul>
+    )
+  }
 
   return (
-    <div>
-      {node.children ? (
-        <div>
-          <label className="node" onClick={onSplit}>{node.id}</label>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-around"
-            }}
-          >
-            <TreeNode node={node.children[0]} />
-            <TreeNode node={node.children[1]} />
-          </div>
-        </div>
-      ) : (
-        <div key={node.id}>
-          <label className="node" onClick={onSplit}>{node.id}</label>
-        </div>
-      )}
+    <div className="tree">
+      <ul>
+        <li><h4>0</h4>
+          {
+            node.children ?
+              renderTree(node.children)
+              : (
+                null
+              )}
+        </li>
+      </ul>
     </div>
   );
 }
